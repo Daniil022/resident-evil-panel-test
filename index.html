@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIVE RUSSIA // Панель семьи RESIDENT EVIL</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 90,85 10,85' fill='%2300c8d4'/></svg>">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#00c8d4">
+
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/panels.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/chat.css">
+<link rel="stylesheet" href="css/contracts.css">
+<link rel="stylesheet" href="css/roles.css">
+<link rel="stylesheet" href="css/music.css">
+<link rel="stylesheet" href="css/album.css">
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+
+<!-- ============ АВТОРИЗАЦИЯ ============ -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="umbrella"></div></div>
+    <div class="auth-title">LIVE <span>RUSSIA</span></div>
+    <div class="auth-sub">RESIDENT EVIL // ACCESS TERMINAL</div>
+
+    <div id="loginForm">
+      <div class="auth-error" id="authError">Неверный логин или PIN-код</div>
+      <label for="loginInput">Логин (Nick_Name)</label>
+      <input type="text" id="loginInput" placeholder="Nick_Name" autocomplete="off" spellcheck="false">
+      <div class="auth-hint">Формат: латиница, цифры, нижнее подчёркивание</div>
+      <label for="pinInput">PIN-код / Пароль</label>
+      <input type="password" id="pinInput" placeholder="••••" autocomplete="off">
+      <button class="auth-btn" id="loginBtn">ВОЙТИ В СИСТЕМУ</button>
+      <div class="auth-default" id="authDefaultHint"></div>
+      <button type="button" class="auth-btn" id="showRegisterBtn" style="margin-top:10px;background:transparent;border:1px solid var(--cyan);color:var(--cyan);">📝 ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    </div>
+
+    <div id="registerForm" style="display:none;">
+      <div class="auth-error" id="regError"></div>
+      <div class="auth-sub" style="margin-bottom:16px;font-size:11px;">Заявка на регистрацию</div>
+      <label for="regNick">Игровой ник (Nick_Name)</label>
+      <input type="text" id="regNick" placeholder="Nick_Name" autocomplete="off" spellcheck="false">
+      <div class="auth-hint">Латиница, цифры, _ (3-32 символа)</div>
+      <label for="regPin">PIN-код (4-8 цифр)</label>
+      <input type="password" id="regPin" placeholder="••••" autocomplete="off">
+      <label for="regPin2">Повтори PIN-код</label>
+      <input type="password" id="regPin2" placeholder="••••" autocomplete="off">
+
+      <label style="margin-top:14px;display:block;">Кто ты?</label>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <label style="flex:1;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg-2);padding:10px;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;">
+          <input type="radio" name="regType" value="resident" checked style="cursor:pointer;">
+          <span style="color:#fff;font-size:13px;">🏠 Резидент</span>
+        </label>
+        <label style="flex:1;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg-2);padding:10px;border-radius:8px;border:1px solid var(--border);transition:all 0.2s;">
+          <input type="radio" name="regType" value="ally" style="cursor:pointer;">
+          <span class="role-badge-rainbow" style="font-size:12px;">Союзник</span>
+        </label>
+      </div>
+
+      <button class="auth-btn" id="registerBtn">ОТПРАВИТЬ ЗАЯВКУ</button>
+      <button type="button" class="auth-btn" id="showLoginBtn" style="margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--text-2);">← НАЗАД</button>
+    </div>
+
+    <div class="auth-footer">T-VIRUS PROTOCOL v2.4 // UNAUTHORIZED ACCESS PROHIBITED</div>
+  </div>
+</div>
+
+<!-- ============ ОСНОВНОЙ ИНТЕРФЕЙС ============ -->
+<div id="app" style="display:none;">
+
+<header>
+  <div class="logo">
+    <div class="umbrella"></div>
+    <div class="logo-text">
+      <span class="l1">LIVE</span>
+      <span class="l2">RUSSIA</span>
+      <span class="logo-sub">RESIDENT EVIL PANEL</span>
+    </div>
+  </div>
+  <div class="header-status">
+    <div class="header-info">
+      <div class="status-line">СИСТЕМА АКТИВНА</div>
+      <div class="fam-name">СЕМЬЯ: <span>RESIDENT EVIL</span></div>
+    </div>
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar" title="Клик — загрузить аватарку">?</div>
+      <div class="user-meta" id="userMeta" title="Клик — открыть профиль">
+        <span class="nick" id="userName">—</span>
+        <span class="role-tag" id="userRoleTag">—</span>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">ВЫЙТИ</button>
+  </div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" data-tab="dashboard">📊 Дашборд</button>
+  <button data-tab="nicks">👤 Игровые ники</button>
+  <button data-tab="ranks">🎖 Ранги</button>
+  <button data-tab="contracts">📜 Контракты</button>
+  <button data-tab="news">📢 Новости</button>
+  <button data-tab="premiums">🏆 Премии</button>
+  <button data-tab="allies">🤝 Союз семьи</button>
+  <button data-tab="music">🎵 Музыка</button>
+  <button data-tab="rules">📖 Правила</button>
+  <button data-tab="album">📸 Фото</button>
+  <button data-tab="chat" id="navChat">💬 Общение <span class="badge" id="chatBadge" style="display:none;">0</span></button>
+  <button data-tab="chat-allies" id="navChatAllies">🤝 Союз чат <span class="badge badge-rainbow" id="chatAlliesBadge" style="display:none;">0</span></button>
+  <button data-tab="online" id="navOnline">👥 Онлайн <span class="badge" id="onlineBadge">0</span></button>
+  <button data-tab="applications" id="navApplications" class="hidden">📥 Заявки</button>
+  <button data-tab="admin" id="navAdmin" class="hidden">⚙ ADMIN</button>
+</nav>
+
+<main>
+
+  <!-- ДАШБОРД -->
+  <section class="panel active" id="dashboard">
+    <h2>Командный центр семьи</h2>
+    <div class="dash-welcome">
+      <div class="dash-avatar" id="dashAvatar">?</div>
+      <div class="dash-info">
+        <div class="dash-greet">Добро пожаловать, <span id="dashUser">—</span></div>
+        <div class="dash-role" id="dashRole">—</div>
+        <div class="dash-sub">RESIDENT EVIL // семья активна</div>
+      </div>
+      <div class="dash-clock" id="dashClock">--:--:--</div>
+    </div>
+    <div class="dash-stats">
+      <div class="dash-stat"><div class="dash-stat-icon">👥</div><div class="dash-stat-value" id="dashMembers">0</div><div class="dash-stat-label">Участников</div></div>
+      <div class="dash-stat"><div class="dash-stat-icon">🟢</div><div class="dash-stat-value online" id="dashOnline">0</div><div class="dash-stat-label">Онлайн</div></div>
+      <div class="dash-stat"><div class="dash-stat-icon">💰</div><div class="dash-stat-value" id="dashTreasury">0</div><div class="dash-stat-label">Казна, ₽</div></div>
+      <div class="dash-stat"><div class="dash-stat-icon">⚔</div><div class="dash-stat-value" id="dashWars">0</div><div class="dash-stat-label">Активных войн</div></div>
+      <div class="dash-stat"><div class="dash-stat-icon">📜</div><div class="dash-stat-value" id="dashContracts">0</div><div class="dash-stat-label">Контрактов</div></div>
+      <div class="dash-stat"><div class="dash-stat-icon">💬</div><div class="dash-stat-value" id="dashMessages">0</div><div class="dash-stat-label">Сообщений</div></div>
+    </div>
+    <h2 class="sub">📋 Последние события</h2>
+    <div class="dash-feed" id="dashFeed">
+      <div class="dash-event" style="opacity: 0.5;">
+        <span class="dash-event-icon">⏳</span>
+        <span class="dash-event-time">—</span>
+        <span class="dash-event-text">Событий пока нет</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ИГРОВЫЕ НИКИ -->
+  <section class="panel" id="nicks">
+    <div class="contracts-head">
+      <h2>Реестр игровых ников</h2>
+      <div id="nicksToolbar"></div>
+    </div>
+    <div class="grid" id="nicksGrid"></div>
+  </section>
+
+  <!-- РАНГИ -->
+  <section class="panel" id="ranks">
+    <h2>Ранги семьи</h2>
+    <div class="grid" id="ranksGrid"></div>
+  </section>
+
+  <!-- КОНТРАКТЫ -->
+  <section class="panel" id="contracts">
+    <div class="contracts-head">
+      <h2>Контракты семьи</h2>
+      <button class="btn" id="createContractBtn">+ Создать контракт</button>
+    </div>
+    <div id="contractProgress"></div>
+    <div class="grid" id="contractsGrid"></div>
+  </section>
+
+  <!-- НОВОСТИ -->
+  <section class="panel" id="news">
+    <div class="contracts-head">
+      <h2>📢 Новости семьи</h2>
+      <div id="captasToolbar"></div>
+    </div>
+    <div class="grid" id="captasGrid"></div>
+  </section>
+
+  <!-- ПРЕМИИ -->
+  <section class="panel" id="premiums">
+    <div class="contracts-head">
+      <h2>🏆 Премии семьи</h2>
+      <div id="premiumsToolbar"></div>
+    </div>
+    <div class="grid" id="premiumsGrid"></div>
+  </section>
+
+  <!-- СОЮЗ -->
+  <section class="panel" id="allies">
+    <div class="contracts-head">
+      <h2>Союзы семьи</h2>
+      <div id="alliesToolbar"></div>
+    </div>
+    <div class="grid" id="alliesGrid"></div>
+  </section>
+
+  <!-- МУЗЫКА -->
+  <section class="panel" id="music">
+    <div class="contracts-head">
+      <h2>Музыка семьи</h2>
+      <div id="musicToolbar"></div>
+    </div>
+    <div id="musicPlayer"></div>
+    <div class="music-tabs" id="musicTabs"></div>
+    <div class="grid" id="musicGrid"></div>
+  </section>
+
+  <!-- ПРАВИЛА -->
+  <section class="panel" id="rules">
+    <div class="contracts-head">
+      <h2>Правила семьи</h2>
+      <div id="rulesToolbar"></div>
+    </div>
+    <div class="grid" id="rulesGrid"></div>
+  </section>
+
+  <!-- ФОТОАЛЬБОМ -->
+  <section class="panel" id="album">
+    <div class="contracts-head">
+      <h2>Фотоальбом</h2>
+      <div id="albumToolbar"></div>
+    </div>
+    <div id="albumGrid"></div>
+  </section>
+
+  <!-- ЧАТ РЕЗИДЕНТОВ -->
+  <section class="panel" id="chat">
+    <h2>💬 Общение резидентов</h2>
+    <div class="chat-wrap">
+      <div class="chat-theme-picker" id="chatThemePicker">
+        <button class="chat-theme-btn" data-theme="default" title="Стиль по умолчанию"></button>
+        <button class="chat-theme-btn" data-theme="vk-classic" title="Классика ВК"></button>
+        <button class="chat-theme-btn" data-theme="dark" title="Тёмная тема"></button>
+      </div>
+      <div class="chat-pin-bar" id="chatPinBar">
+        <span class="pin-icon">📌</span>
+        <div class="pin-body">
+          <div class="pin-author" id="chatPinAuthor">—</div>
+          <div class="pin-text" id="chatPinText">—</div>
+        </div>
+        <button class="pin-close" onclick="window.__chatUnpin('residents')" title="Открепить">✕</button>
+      </div>
+      <div class="chat-pinned">
+        <span class="pin-icon">📌</span>
+        <span class="pin-text">Беседа резидентов RESIDENT EVIL.</span>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <button class="chat-new-btn" id="chatNewBtn">↓ Новые сообщения</button>
+      <div class="chat-typing" id="chatTyping"></div>
+      <div class="chat-input-wrap">
+        <div class="chat-reply-bar" id="chatReplyBar">
+          <div class="reply-line">
+            <div class="reply-to">Ответ <span id="replyToName">—</span></div>
+            <div class="reply-text" id="replyToText">—</div>
+          </div>
+          <button class="close-reply" onclick="window.__clearReply && window.__clearReply()">✕</button>
+        </div>
+        <div class="chat-input">
+          <button class="emoji-btn" id="emojiBtn">☺</button>
+          <input type="text" id="chatInput" placeholder="Написать сообщение..." autocomplete="off">
+          <button class="send-btn" id="chatSend">➤</button>
+        </div>
+        <div class="emoji-picker" id="emojiPicker"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЧАТ СОЮЗНИКОВ -->
+  <section class="panel" id="chat-allies">
+    <h2 class="h2-rainbow">🤝 Общение союзников</h2>
+    <div class="chat-wrap">
+      <div class="chat-theme-picker" id="chatAlliesThemePicker">
+        <button class="chat-theme-btn" data-theme="default" title="Стиль по умолчанию"></button>
+        <button class="chat-theme-btn" data-theme="vk-classic" title="Классика ВК"></button>
+        <button class="chat-theme-btn" data-theme="dark" title="Тёмная тема"></button>
+      </div>
+      <div class="chat-pin-bar" id="chatAlliesPinBar">
+        <span class="pin-icon">📌</span>
+        <div class="pin-body">
+          <div class="pin-author" id="chatAlliesPinAuthor">—</div>
+          <div class="pin-text" id="chatAlliesPinText">—</div>
+        </div>
+        <button class="pin-close" onclick="window.__chatUnpin('allies')" title="Открепить">✕</button>
+      </div>
+      <div class="chat-pinned chat-pinned-rainbow">
+        <span class="pin-icon">🤝</span>
+        <span class="pin-text">Беседа союзников RESIDENT EVIL.</span>
+      </div>
+      <div class="chat-messages" id="chatAlliesMessages"></div>
+      <button class="chat-new-btn" id="chatAlliesNewBtn">↓ Новые сообщения</button>
+      <div class="chat-typing" id="chatAlliesTyping"></div>
+      <div class="chat-input-wrap">
+        <div class="chat-reply-bar" id="chatAlliesReplyBar">
+          <div class="reply-line">
+            <div class="reply-to">Ответ <span id="chatAlliesReplyToName">—</span></div>
+            <div class="reply-text" id="chatAlliesReplyToText">—</div>
+          </div>
+          <button class="close-reply" onclick="window.__clearReplyAllies && window.__clearReplyAllies()">✕</button>
+        </div>
+        <div class="chat-input">
+          <button class="emoji-btn" id="chatAlliesEmojiBtn">☺</button>
+          <input type="text" id="chatAlliesInput" placeholder="Написать сообщение..." autocomplete="off">
+          <button class="send-btn" id="chatAlliesSend">➤</button>
+        </div>
+        <div class="emoji-picker" id="chatAlliesEmojiPicker"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ОНЛАЙН -->
+  <section class="panel" id="online">
+    <h2>👥 Кто онлайн</h2>
+    <div class="grid" id="onlineGrid"></div>
+  </section>
+
+  <!-- ЗАЯВКИ -->
+  <section class="panel" id="applications">
+    <h2>📥 Заявки</h2>
+    <div id="applicationsPageContent">
+      <div class="grid" data-app-panel="registration" id="registrationList"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="panel" id="admin">
+    <h2>⚙ Панель администратора</h2>
+
+    <div id="adminHome">
+      <div class="grid admin-sections" id="adminSectionsGrid"></div>
+    </div>
+
+    <!-- РАЗДЕЛ: ЛОГИ СЕМЬИ -->
+    <div class="admin-section-view" data-section-view="logs" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">📢 Логи семьи</h3>
+      </div>
+      <div class="grid">
+        <div class="card clickable" onclick="window.open('https://vk.com/resident_panel', '_blank')">
+          <div class="name">📢 Перейти в логи (ВК)</div>
+          <div class="role gold">Внешняя ссылка</div>
+          <div class="stat">Открыть сообщество с логами семьи</div>
+        </div>
+      </div>
+      <h2 class="sub">Журнал текущей сессии</h2>
+      <div class="log" id="adminLog">
+        <div class="log-line"><span class="ts">[—]</span>Лог административных действий</div>
+      </div>
+    </div>
+
+    <!-- РАЗДЕЛ: РЕЗЕРВНАЯ КОПИЯ -->
+    <div class="admin-section-view" data-section-view="backup" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">💾 Резервная копия</h3>
+      </div>
+      <div class="grid">
+        <div class="card clickable" data-admin-action="backupCreateNow">
+          <div class="name">💾 Создать бэкап сейчас</div>
+          <div class="role gold">Резервная копия</div>
+          <div class="stat">Сохранить все данные в облако</div>
+        </div>
+        <div class="card clickable" data-admin-action="backupDownload">
+          <div class="name">📥 Скачать backup</div>
+          <div class="role">Локально</div>
+          <div class="stat">Сохранить в JSON-файл на ПК</div>
+        </div>
+        <div class="card clickable" data-admin-action="backupRestore">
+          <div class="name">↺ Загрузить backup</div>
+          <div class="role danger">Опасно</div>
+          <div class="stat">Восстановить данные из файла</div>
+        </div>
+        <div class="card clickable" data-admin-action="exportAll">
+          <div class="name">📤 Экспорт всех</div>
+          <div class="role">Участники</div>
+          <div class="stat">CSV/JSON всех участников</div>
+        </div>
+        <div class="card clickable" data-admin-action="importUsers">
+          <div class="name">📥 Импорт участников</div>
+          <div class="role gold">Массовый</div>
+          <div class="stat">Загрузить из CSV/JSON пачкой</div>
+        </div>
+        <div class="card clickable" data-admin-action="resetDemo">
+          <div class="name">🗑 Сбросить демо</div>
+          <div class="role danger">Опасно</div>
+          <div class="stat">Очистить все re_demo_* ключи</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- РАЗДЕЛ: ОБЛАЧНЫЕ БЭКАПЫ -->
+    <div class="admin-section-view" data-section-view="cloud" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">📦 Облачные бэкапы</h3>
+      </div>
+      <div class="users-toolbar-row" style="margin-bottom:12px;">
+        <button class="btn" id="backupCreateNowBtn">💾 Создать сейчас</button>
+        <button class="btn secondary" id="backupCleanupBtn">🧹 Удалить старые (&gt;7 дней)</button>
+        <button class="btn secondary" id="backupAutoCheckBtn">⏱ Проверить авто-бэкап</button>
+      </div>
+      <div id="backupsList">
+        <div style="text-align:center;color:var(--muted);padding:20px;">Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- РАЗДЕЛ: УПРАВЛЕНИЕ УЧАСТНИКАМИ -->
+    <div class="admin-section-view" data-section-view="users" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">⚙️ Управление участниками</h3>
+      </div>
+      <div class="grid" id="adminUsersGrid"></div>
+    </div>
+
+    <!-- РАЗДЕЛ: РЕДАКТОР РОЛЕЙ -->
+    <div class="admin-section-view" data-section-view="roles" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">🎖 Редактор ролей</h3>
+      </div>
+      <div class="roles-toolbar">
+        <div style="color:var(--muted);font-size:12.5px;">Изменяй название, цвет и порядок ролей</div>
+        <button class="btn" id="addRoleBtn">+ Создать роль</button>
+      </div>
+      <div class="roles-list" id="rolesList"></div>
+    </div>
+
+    <!-- РАЗДЕЛ: РЕДАКТОР ПОДРАЗДЕЛЕНИЙ -->
+    <div class="admin-section-view" data-section-view="divisions" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">🎯 Редактор подразделений</h3>
+      </div>
+      <div class="roles-toolbar">
+        <div style="color:var(--muted);font-size:12.5px;">Управляй подразделениями семьи</div>
+        <button class="btn" id="addDivisionBtn">+ Создать подразделение</button>
+      </div>
+      <div class="roles-list" id="divisionsList"></div>
+    </div>
+
+    <!-- РАЗДЕЛ: РЕЕСТР УЧАСТНИКОВ -->
+    <div class="admin-section-view" data-section-view="registry" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">📋 Реестр участников</h3>
+      </div>
+      <div id="usersToolbar" class="users-toolbar"></div>
+      <div style="overflow-x:auto;">
+        <table class="users-table" id="usersTable">
+          <thead>
+            <tr>
+              <th class="check-cell"><input type="checkbox" id="usersSelectAll" title="Выделить всех"></th>
+              <th class="sortable" data-sort="login" onclick="window.__usersSort('login')">Логин ↕</th>
+              <th class="sortable" data-sort="role" onclick="window.__usersSort('role')">Роль ↕</th>
+              <th class="sortable" data-sort="division" onclick="window.__usersSort('division')">Отряд ↕</th>
+              <th class="sortable" data-sort="warn" onclick="window.__usersSort('warn')">Warn ↕</th>
+              <th class="sortable" data-sort="lastSeen" onclick="window.__usersSort('lastSeen')">Последний вход ↕</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- РАЗДЕЛ: ПОЛНАЯ ИСТОРИЯ -->
+    <div class="admin-section-view" data-section-view="history" style="display:none;">
+      <div class="admin-section-head">
+        <button class="btn secondary" onclick="window.__adminBack()">← Назад</button>
+        <h3 class="admin-section-title">📜 Полная история</h3>
+      </div>
+      <div id="adminLogsToolbar" class="users-toolbar"></div>
+      <div id="adminLogsFull" style="max-height:600px;overflow-y:auto;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
+        <div style="text-align:center;color:var(--muted);padding:20px;">Загрузка...</div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+</div>
+
+<!-- ============ МОДАЛКА ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">ПОДТВЕРЖДЕНИЕ</h3>
+    <div id="modalBody"><p id="modalText">Вы уверены?</p></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeModal()">ОТМЕНА</button>
+      <button class="btn" id="modalConfirm" onclick="confirmModal()">ПОДТВЕРДИТЬ</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
