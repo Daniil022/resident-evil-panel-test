@@ -26,9 +26,7 @@ import { initOnline, renderOnline } from "./modules/online.js";
 import { preloadColorData, applyColorsToDOM, getRoleColor, getRoleName } from "./core/colorize.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ✅ Глобальная обработка ошибок
   initGlobalErrorHandler();
-
   initSounds();
   initPWA();
   setupAuthScreen();
@@ -182,7 +180,8 @@ function enterApp(user) {
 
   const navAdmin = document.getElementById("navAdmin");
   const navApplications = document.getElementById("navApplications");
-  const isAdminRole = ["emperor", "lord"].includes(user.role);
+  const isDevRole = user.role === "dev";
+  const isAdminRole = ["emperor", "lord", "dev"].includes(user.role);
   if (navAdmin) navAdmin.classList.toggle("hidden", !isAdminRole);
   if (navApplications) navApplications.classList.toggle("hidden", !isAdminRole);
 
@@ -195,9 +194,8 @@ function enterApp(user) {
   setupProfileClicks();
   if (user.avatar) updateDashAvatar(user);
 
-  // ✅ Автобэкап только для админов
   if (isAdminRole) {
-    startAutoBackupTimer(6 * 60 * 60 * 1000); // каждые 6 часов
+    startAutoBackupTimer(6 * 60 * 60 * 1000);
   }
 
   const inited = {
@@ -266,16 +264,11 @@ function applyRoleVisibility(isAlly) {
   });
 }
 
-// ✅ Унифицированная очистка при выгрузке страницы
 window.addEventListener("beforeunload", () => {
   const cleanups = [
     ["Chat", () => destroyChat()],
     ["ReadSubs", () => destroyReadSubs()],
-    ["Contracts", () => destroyContracts()],
-    ["Presence", async () => {
-      const { destroyPresence } = await import("./modules/chat/chat-presence.js");
-      destroyPresence();
-    }]
+    ["Contracts", () => destroyContracts()]
   ];
 
   cleanups.forEach(([name, fn]) => {
