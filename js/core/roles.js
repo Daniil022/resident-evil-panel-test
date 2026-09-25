@@ -11,9 +11,10 @@ const DEMO_KEY = "re_demo_roles";
 export const DEFAULT_ROLES = [
   { id: "emperor",  name: "Император",     color: "#fbbf24", desc: "Лидер семьи",   order: 1, system: true },
   { id: "lord",     name: "Лорд Тьмы",     color: "#ef4444", desc: "Заместитель",   order: 2, system: true },
-  { id: "knight",   name: "Рыцарь Смерти", color: "#3b82f6", desc: "Офицер",        order: 3, system: true },
-  { id: "skeleton", name: "Скелет Ужаса",  color: "#a855f7", desc: "Офицер",        order: 4, system: true },
-  { id: "soul",     name: "Тёмная душа",   color: "#a4b1c0", desc: "Боец",          order: 5, system: true },
+  { id: "dev",      name: "Разработчик",   color: "#00ff41", desc: "Технический доступ", order: 3, system: true },
+  { id: "knight",   name: "Рыцарь Смерти", color: "#3b82f6", desc: "Офицер",        order: 4, system: true },
+  { id: "skeleton", name: "Скелет Ужаса",  color: "#a855f7", desc: "Офицер",        order: 5, system: true },
+  { id: "soul",     name: "Тёмная душа",   color: "#a4b1c0", desc: "Боец",          order: 6, system: true },
   { id: "ally",     name: "Союзник",       color: "rainbow", desc: "Союзник семьи", order: 99, system: true, isAlly: true }
 ];
 
