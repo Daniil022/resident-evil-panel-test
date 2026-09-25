@@ -3,6 +3,7 @@ import {
   createUser, listUsers, changePin, changeRole, changeDivision,
   warnUser, deleteUser
 } from "../core/auth.js";
+import { getCurrentUser } from "../core/state.js";
 import { listRoles } from "../core/roles.js";
 import { listDivisions } from "../core/divisions.js";
 import { initUsersModule, bindSelectAll, renderUsersTable } from "./admin-users.js";
@@ -35,7 +36,13 @@ function renderAdminHome() {
   const grid = document.getElementById("adminSectionsGrid");
   if (!grid) return;
 
-  grid.innerHTML = ADMIN_SECTIONS.map(s =>
+  const me = getCurrentUser();
+  const isDev = me && me.role === "dev";
+
+  grid.innerHTML = ADMIN_SECTIONS.filter(s => {
+    if (s.id === "developer") return isDev;
+    return true;
+  }).map(s =>
     '<div class="card clickable admin-section-card" data-section="' + s.id + '">' +
       '<div class="admin-section-icon">' + s.icon + '</div>' +
       '<div class="name">' + s.title + '</div>' +
@@ -57,24 +64,20 @@ async function goToSection(sectionId, scroll = true) {
   const sections = document.querySelectorAll(".admin-section-view");
 
   if (!sectionId) {
-    // Показать главный экран
     if (home) home.style.display = "block";
     sections.forEach(el => { el.style.display = "none"; });
     return;
   }
 
-  // Скрыть главный, показать нужный
   if (home) home.style.display = "none";
   sections.forEach(el => {
     el.style.display = (el.dataset.sectionView === sectionId) ? "block" : "none";
   });
 
-  // Скролл к началу
   if (scroll) {
     document.getElementById("admin")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // Ленивая инициализация раздела
   try {
     if (sectionId === "users") {
       await initUsersSection();
@@ -90,6 +93,9 @@ async function goToSection(sectionId, scroll = true) {
       await initBackupsView();
     } else if (sectionId === "backup") {
       initImportExport();
+    } else if (sectionId === "developer") {
+      const { initDeveloperPanel } = await import("../razrab/admin-developer.js");
+      await initDeveloperPanel();
     }
   } catch (e) {
     console.warn("Section init failed:", sectionId, e);
@@ -146,7 +152,7 @@ async function initRegistrySection() {
   bindSelectAll();
 }
 
-// ==================== СТАРЫЕ ФУНКЦИИ (создание и т.д.) ====================
+// ==================== СТАРЫЕ ФУНКЦИИ ====================
 async function openCreateUser() {
   const roles = await listRoles();
   const divisions = await listDivisions();
@@ -327,5 +333,5 @@ export function addLog(message, type = "info", opts = {}) {
   }).catch(() => {});
 }
 
-// ==================== ЭКСПОРТЫ ДЛЯ ИМПОРТА В ДРУГИХ МОДУЛЯХ ====================
+// ==================== ЭКСПОРТЫ ====================
 export { exportAll, openImportModal, resetDemoData };
