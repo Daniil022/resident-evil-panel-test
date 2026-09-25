@@ -491,13 +491,8 @@
         <h3 class="admin-section-title">🛠️ Панель разработчика</h3>
       </div>
 
-      <div class="users-toolbar-row" style="margin-bottom:16px;">
-        <button class="btn dev-tab active" data-dev-tab="firestore">📁 Firestore</button>
-        <button class="btn secondary dev-tab" data-dev-tab="mass-ops" style="margin-left:8px;">⚡ Массовые операции</button>
-        <button class="btn secondary dev-tab" data-dev-tab="test-data" style="margin-left:8px;">🧪 Тестовые данные</button>
-        <button class="btn secondary dev-tab" data-dev-tab="flags" style="margin-left:8px;">🚩 Feature Flags</button>
-        <button class="btn secondary dev-tab" data-dev-tab="session" style="margin-left:8px;">👤 Сессия</button>
-      </div>
+      <!-- Вкладки рендерятся автоматически из admin-developer.js -->
+      <div id="developer-tabs" class="users-toolbar-row" style="margin-bottom:16px;"></div>
 
       <div id="devContent">
         <div style="text-align:center;color:var(--muted);padding:40px;">Загрузка...</div>
