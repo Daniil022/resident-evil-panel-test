@@ -200,12 +200,10 @@ function initOneChat(chatId) {
         container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:12px;">' + emptyMsg + '</div>';
       }
 
-      // Проверка на новое сообщение
       if (newestMsg && !firstLoad[chatId] && newestMsg.id !== lastMessageId[chatId]) {
         const isOwn = newestMsg.authorId === getCurrentUser().uid;
         notifyNewMessage(newestMsg, isOwn, chatId);
 
-        // Если это чужое сообщение и юзер не внизу — увеличиваем счётчик
         if (!isOwn) {
           const cont = document.getElementById(cfg.containerId);
           if (cont) {
@@ -220,10 +218,8 @@ function initOneChat(chatId) {
       if (newestMsg) lastMessageId[chatId] = newestMsg.id;
       firstLoad[chatId] = false;
 
-      // Автоскролл (если юзер внизу)
       scrollToBottomForChat(chatId);
 
-      // Обновляем «прочитано до»
       if (newestMsg && !hiddenMessages[chatId].has(newestMsg.id)) {
         setLastRead(chatId, newestMsg.id);
       }
@@ -481,73 +477,10 @@ async function sendMessageTo(chatId, text) {
     clearReplyForChat(chatId);
     markChatAsRead(chatId);
 
-    // Своё сообщение — «прочитано»
     if (ref && ref.id) setLastRead(chatId, ref.id);
 
     const chatLabel = chatId === "allies" ? "Союз-чат" : "Чат";
     addDashEvent("💬", user.login + " (" + chatLabel + "): " + text.substring(0, 60), { type: "chat" })
-      .catch(() => {});
-  } catch (e) {
-    toast("Ошибка: " + e.message, "warn");
-  }
-}
-
-// ==================== ОТПРАВКА ГОЛОСОВОГО ====================
-async function sendVoiceTo(chatId, blob, durationMs, mime) {
-  const user = getCurrentUser();
-  if (!user) return;
-
-  const muted = await checkMutedFresh(user);
-  if (muted) return;
-
-  if (user.role === "ally" && chatId === "residents") {
-    toast("Союзники не могут писать в беседу резидентов", "warn");
-    return;
-  }
-
-  const ext = (mime && mime.includes("ogg")) ? "ogg"
-            : (mime && mime.includes("webm")) ? "webm"
-            : (mime && mime.includes("mp4")) ? "m4a"
-            : "webm";
-
-  let url;
-  try {
-    const { uploadMedia } = await import("../contracts/contracts-upload.js");
-    const file = new File([blob], "voice-" + Date.now() + "." + ext, { type: mime || "audio/webm" });
-    const media = await uploadMedia(file, chatId, user.login, "🎤 Голосовое", "voice");
-    url = media.url || media.vk_link;
-    if (!url) throw new Error("Пустая ссылка на голосовое");
-  } catch (e) {
-    toast("Не удалось загрузить голосовое: " + e.message, "warn");
-    return;
-  }
-
-  const reply = window.__currentReplies && window.__currentReplies[chatId];
-
-  const newMsg = {
-    type: "voice",
-    text: "🎤 Голосовое сообщение",
-    voiceUrl: url,
-    voiceDuration: durationMs,
-    authorId: user.uid,
-    authorLogin: user.login,
-    authorRole: user.role,
-    authorAvatar: user.avatar || null,
-    replyTo: reply ? {
-      id: reply.id,
-      author: reply.authorLogin,
-      text: reply.text ? reply.text.substring(0, 80) : "🎤 Голосовое"
-    } : null,
-    reactions: {},
-    createdAt: serverTimestamp()
-  };
-
-  try {
-    const ref = await addDoc(collection(db, "chats", chatId, "messages"), newMsg);
-    clearReplyForChat(chatId);
-    markChatAsRead(chatId);
-    if (ref && ref.id) setLastRead(chatId, ref.id);
-    addDashEvent("🎤", user.login + ": голосовое " + Math.round(durationMs / 1000) + "с", { type: "chat" })
       .catch(() => {});
   } catch (e) {
     toast("Ошибка: " + e.message, "warn");
@@ -613,17 +546,10 @@ function setupInputForChat(chatId) {
     });
   }
 
-  import("./chat-voice-ui.js")
-    .then(m => m.setupVoiceForChat(chatId, sendVoiceTo))
-    .catch(err => console.warn("Voice UI init failed:", err));
-
+  // ✅ Только файлы, без голосовых и опросов
   import("./chat-files.js")
     .then(m => m.setupFileButton(chatId, () => {}))
     .catch(err => console.warn("File btn init failed:", err));
-
-  import("./chat-polls.js")
-    .then(m => m.setupPollButton(chatId, () => {}))
-    .catch(err => console.warn("Poll btn init failed:", err));
 }
 
 // ==================== СКРОЛЛ ====================
@@ -649,7 +575,7 @@ function setReplyToChat(chatId, msg) {
   const txt = document.getElementById(cfg.replyTextId);
 
   if (name) name.textContent = msg.authorLogin;
-  if (txt) txt.textContent = msg.text ? msg.text.substring(0, 80) : "🎤 Голосовое";
+  if (txt) txt.textContent = msg.text ? msg.text.substring(0, 80) : "📎 Файл";
   if (bar) bar.classList.add("active");
 
   const input = document.getElementById(cfg.inputId);
@@ -667,7 +593,7 @@ function clearReplyForChat(chatId) {
 window.__clearReply = function() { clearReplyForChat("residents"); };
 window.__clearReplyAllies = function() { clearReplyForChat("allies"); };
 
-// ==================== ТЕМА ====================
+// ==================== ТЕМА (оставляем переключатель, но themes фиксированы) ====================
 function initThemeForChat(chatId) {
   const cfg = CHATS[chatId];
   if (!cfg) return;
