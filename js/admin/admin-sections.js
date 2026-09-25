@@ -57,6 +57,13 @@ export const ADMIN_SECTIONS = [
     title: "Полная история",
     desc: "Логи с фильтрами по автору, типу, цели",
     role: ""
+  },
+  {
+    id: "developer",
+    icon: "🛠️",
+    title: "Панель разработчика",
+    desc: "Firestore, тестовые данные, feature flags",
+    role: "green"
   }
 ];
 
